@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import ExperienceEditor from "@/components/editor/ExperienceEditor";
+import ProjectsEditor from "@/components/editor/ProjectsEditor";
 import SimpleTemplate from "@/components/templates/SimpleTemplate";
 import { sampleCv } from "@/data/sampleCv";
 import type { CV } from "@/types/cv";
@@ -117,6 +118,13 @@ export default function Home() {
               experience={cv.experience}
               onChange={(experience) =>
                 setCv((currentCv) => ({ ...currentCv, experience }))
+              }
+            />
+
+            <ProjectsEditor
+              projects={cv.projects}
+              onChange={(projects) =>
+                setCv((currentCv) => ({ ...currentCv, projects }))
               }
             />
           </div>
