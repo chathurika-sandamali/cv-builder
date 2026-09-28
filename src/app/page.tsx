@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import ExperienceEditor from "@/components/editor/ExperienceEditor";
 import SimpleTemplate from "@/components/templates/SimpleTemplate";
 import { sampleCv } from "@/data/sampleCv";
 import type { CV } from "@/types/cv";
@@ -111,6 +112,13 @@ export default function Home() {
                 onChange={(event) => updateSummary(event.target.value)}
               />
             </label>
+
+            <ExperienceEditor
+              experience={cv.experience}
+              onChange={(experience) =>
+                setCv((currentCv) => ({ ...currentCv, experience }))
+              }
+            />
           </div>
         </section>
 
