@@ -42,6 +42,16 @@ export type CvCertification = {
   year: string;
 };
 
+export type RepoEvidence = {
+  name: string;
+  url: string;
+  description: string | null;
+  languages: string[];
+  topics: string[];
+  stars: number;
+  pushedAt: string;
+};
+
 export type SectionName =
   | "basics"
   | "summary"

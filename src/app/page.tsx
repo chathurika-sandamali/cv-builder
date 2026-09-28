@@ -1,5 +1,6 @@
 "use client";
 
+import GithubPanel from "@/components/editor/GithubPanel";
 import ExperienceEditor from "@/components/editor/ExperienceEditor";
 import CertificationsEditor from "@/components/editor/CertificationsEditor";
 import EducationEditor from "@/components/editor/EducationEditor";
@@ -124,6 +125,13 @@ export default function Home() {
               experience={cv.experience}
               onChange={(experience) =>
                 setCv((currentCv) => ({ ...currentCv, experience }))
+              }
+            />
+
+            <GithubPanel
+              projects={cv.projects}
+              onChange={(projects) =>
+                setCv((currentCv) => ({ ...currentCv, projects }))
               }
             />
 
