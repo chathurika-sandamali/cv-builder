@@ -24,3 +24,69 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  /* Keep only the CV visible in the printed document. */
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-preview,
+  .print-preview * {
+    visibility: visible;
+  }
+
+  .print-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .print-button {
+    display: none !important;
+  }
+
+  .print-page-shell {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .print-preview > article {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .print-preview section > div > article,
+  .print-preview li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-preview h2,
+  .print-preview h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}

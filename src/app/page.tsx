@@ -31,10 +31,22 @@ export default function Home() {
     setCv((currentCv) => ({ ...currentCv, summary: value }));
   };
 
+  const handlePrint = () => {
+    const originalTitle = document.title;
+    const restoreTitle = () => {
+      document.title = originalTitle;
+      window.removeEventListener("afterprint", restoreTitle);
+    };
+
+    document.title = `${cv.basics.name} - CV`;
+    window.addEventListener("afterprint", restoreTitle);
+    window.print();
+  };
+
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-8 sm:py-12">
-      <div className="mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
-        <section className="h-fit rounded-lg bg-white p-6 shadow-sm">
+      <div className="print-page-shell mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
+        <section className="print-editor h-fit rounded-lg bg-white p-6 shadow-sm">
           <h1 className="text-xl font-bold text-gray-900">Edit your CV</h1>
           <p className="mt-1 text-sm text-gray-600">
             Changes appear in the preview as you type.
@@ -103,7 +115,18 @@ export default function Home() {
         </section>
 
         <section className="min-w-0">
-          <SimpleTemplate cv={cv} />
+          <div className="print-preview">
+            <div className="print-button mb-4 flex justify-end">
+              <button
+                className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                type="button"
+                onClick={handlePrint}
+              >
+                Download PDF
+              </button>
+            </div>
+            <SimpleTemplate cv={cv} />
+          </div>
         </section>
       </div>
     </main>
