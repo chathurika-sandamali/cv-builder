@@ -1,12 +1,9 @@
 "use client";
 
-import { useState } from "react";
-
 import ExperienceEditor from "@/components/editor/ExperienceEditor";
 import ProjectsEditor from "@/components/editor/ProjectsEditor";
 import SimpleTemplate from "@/components/templates/SimpleTemplate";
-import { sampleCv } from "@/data/sampleCv";
-import type { CV } from "@/types/cv";
+import { usePersistentCv } from "@/hooks/usePersistentCv";
 
 type EditableBasicsField =
   | "name"
@@ -16,8 +13,7 @@ type EditableBasicsField =
   | "location";
 
 export default function Home() {
-  // Keep the editable CV in local state so the preview updates immediately.
-  const [cv, setCv] = useState<CV>(sampleCv);
+  const { cv, setCv, resetToSample } = usePersistentCv();
 
   const updateBasicsField = (field: EditableBasicsField, value: string) => {
     setCv((currentCv) => ({
@@ -53,6 +49,13 @@ export default function Home() {
           <p className="mt-1 text-sm text-gray-600">
             Changes appear in the preview as you type.
           </p>
+          <button
+            className="mt-4 rounded border border-gray-400 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100"
+            type="button"
+            onClick={resetToSample}
+          >
+            Reset to sample
+          </button>
 
           <div className="mt-6 space-y-4">
             <label className="block text-sm font-medium text-gray-800">
