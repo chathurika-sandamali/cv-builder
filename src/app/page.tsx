@@ -1,7 +1,10 @@
 "use client";
 
 import ExperienceEditor from "@/components/editor/ExperienceEditor";
+import CertificationsEditor from "@/components/editor/CertificationsEditor";
+import EducationEditor from "@/components/editor/EducationEditor";
 import ProjectsEditor from "@/components/editor/ProjectsEditor";
+import SkillsEditor from "@/components/editor/SkillsEditor";
 import SimpleTemplate from "@/components/templates/SimpleTemplate";
 import { usePersistentCv } from "@/hooks/usePersistentCv";
 
@@ -128,6 +131,27 @@ export default function Home() {
               projects={cv.projects}
               onChange={(projects) =>
                 setCv((currentCv) => ({ ...currentCv, projects }))
+              }
+            />
+
+            <EducationEditor
+              education={cv.education}
+              onChange={(education) =>
+                setCv((currentCv) => ({ ...currentCv, education }))
+              }
+            />
+
+            <SkillsEditor
+              skills={cv.skills}
+              onChange={(skills) =>
+                setCv((currentCv) => ({ ...currentCv, skills }))
+              }
+            />
+
+            <CertificationsEditor
+              certifications={cv.certifications}
+              onChange={(certifications) =>
+                setCv((currentCv) => ({ ...currentCv, certifications }))
               }
             />
           </div>
