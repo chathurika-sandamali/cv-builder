@@ -4,6 +4,7 @@ import GithubPanel from "@/components/editor/GithubPanel";
 import ExperienceEditor from "@/components/editor/ExperienceEditor";
 import CertificationsEditor from "@/components/editor/CertificationsEditor";
 import EducationEditor from "@/components/editor/EducationEditor";
+import JobTailorPanel from "@/components/editor/JobTailorPanel";
 import ProjectsEditor from "@/components/editor/ProjectsEditor";
 import SkillsEditor from "@/components/editor/SkillsEditor";
 import SimpleTemplate from "@/components/templates/SimpleTemplate";
@@ -160,6 +161,13 @@ export default function Home() {
               certifications={cv.certifications}
               onChange={(certifications) =>
                 setCv((currentCv) => ({ ...currentCv, certifications }))
+              }
+            />
+
+            <JobTailorPanel
+              cv={cv}
+              onSkillsChange={(skills) =>
+                setCv((currentCv) => ({ ...currentCv, skills }))
               }
             />
           </div>

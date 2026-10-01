@@ -200,10 +200,13 @@ export async function POST(request: Request) {
     );
 
     if (geminiResponse.status === 429) {
+      console.error("Gemini draft-bullets response:", await geminiResponse.text());
       return errorResponse("AI rate limit reached. Please wait a minute and try again.", 429);
     }
 
     if (!geminiResponse.ok) {
+      const errorBody = await geminiResponse.text();
+      console.error("Gemini responded with status", geminiResponse.status, "body:", errorBody);
       return errorResponse("The AI service could not draft bullets. Try again later.", 502);
     }
 
@@ -222,6 +225,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ bullets: flagUnsupportedNumbers(bullets, evidenceText) });
   } catch (error) {
+    console.error("draft-bullets error:", error);
     if (error instanceof Error && error.message === "GITHUB_RATE_LIMIT") {
       return errorResponse("GitHub's API rate limit was reached. Try again later.", 429);
     }
