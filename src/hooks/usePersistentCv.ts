@@ -1,68 +1,113 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { sampleCv } from "@/data/sampleCv";
+import { createClient } from "@/lib/supabase/client";
 import type { CV } from "@/types/cv";
 
-const STORAGE_KEY = "cv-builder:cv";
 const DEFAULT_TEMPLATE_ID = "simple";
 
-type StoredCvData = {
-  cv: CV;
-  templateId?: string;
+type SaveStatus = "loading" | "saving" | "saved" | "error";
+
+type CvRow = {
+  data: CV;
+  template_id: string | null;
 };
 
 export function usePersistentCv() {
-  // Start with sample data so the server and browser render the same markup.
+  // Start with sample data while the user's saved CV loads.
   const [cv, setCv] = useState<CV>(sampleCv);
   const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE_ID);
   const [loaded, setLoaded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("loading");
+  const skipNextSave = useRef(false);
 
   useEffect(() => {
-    let savedCv: CV | undefined;
-    let savedTemplateId: string | undefined;
+    let isActive = true;
+    const supabase = createClient();
 
-    try {
-      const savedJson = window.localStorage.getItem(STORAGE_KEY);
+    const loadCv = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-      if (savedJson) {
-        const savedData = JSON.parse(savedJson) as CV | StoredCvData;
+      if (userError || !user) {
+        throw userError ?? new Error("No logged-in user");
+      }
 
-        if ("cv" in savedData) {
-          savedCv = savedData.cv;
-          savedTemplateId = savedData.templateId;
-        } else {
-          savedCv = savedData;
+      const { data: savedCv, error: fetchError } = await supabase
+        .from("cvs")
+        .select("data, template_id")
+        .eq("user_id", user.id)
+        .maybeSingle<CvRow>();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (!savedCv) {
+        const { error: insertError } = await supabase.from("cvs").insert({
+          user_id: user.id,
+          data: sampleCv,
+          template_id: DEFAULT_TEMPLATE_ID,
+        });
+
+        if (insertError) {
+          throw insertError;
+        }
+      } else if (isActive) {
+        setCv(savedCv.data);
+        if (savedCv.template_id) {
+          setTemplateId(savedCv.template_id);
         }
       }
-    } catch {
-      // Keep sampleCv if localStorage or JSON parsing fails.
-    }
 
-    queueMicrotask(() => {
-      if (savedCv) {
-        setCv(savedCv);
+      if (isActive) {
+        setUserId(user.id);
+        skipNextSave.current = true;
+        setLoaded(true);
+        setSaveStatus("saved");
       }
+    };
 
-      if (savedTemplateId) {
-        setTemplateId(savedTemplateId);
+    loadCv().catch(() => {
+      if (isActive) {
+        setSaveStatus("error");
       }
-
-      setLoaded(true);
     });
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   useEffect(() => {
-    if (!loaded) {
+    if (!loaded || !userId) {
       return;
     }
 
-    try {
-      const storedData: StoredCvData = { cv, templateId };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
-    } catch {
-      // Ignore storage errors so editing the CV still works.
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
     }
-  }, [cv, loaded, templateId]);
+
+    setSaveStatus("saving");
+    const timeoutId = window.setTimeout(async () => {
+      const { error } = await createClient()
+        .from("cvs")
+        .update({
+          data: cv,
+          template_id: templateId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
+
+      setSaveStatus(error ? "error" : "saved");
+    }, 800);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [cv, loaded, templateId, userId]);
 
   const resetToSample = () => {
     if (!window.confirm("Reset your CV to the sample data?")) {
@@ -71,17 +116,14 @@ export function usePersistentCv() {
 
     setCv(sampleCv);
     setTemplateId(DEFAULT_TEMPLATE_ID);
-
-    try {
-      const storedData: StoredCvData = {
-        cv: sampleCv,
-        templateId: DEFAULT_TEMPLATE_ID,
-      };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
-    } catch {
-      // The save effect will also try to persist the reset value.
-    }
   };
 
-  return { cv, setCv, templateId, setTemplateId, resetToSample };
+  return {
+    cv,
+    setCv,
+    templateId,
+    setTemplateId,
+    resetToSample,
+    saveStatus,
+  };
 }

@@ -21,7 +21,14 @@ type EditableBasicsField =
 
 export default function Home() {
   const router = useRouter();
-  const { cv, setCv, templateId, setTemplateId, resetToSample } = usePersistentCv();
+  const {
+    cv,
+    setCv,
+    templateId,
+    setTemplateId,
+    resetToSample,
+    saveStatus,
+  } = usePersistentCv();
   const selectedTemplate = templates.find((template) => template.id === templateId) ?? templates[0];
   const TemplateComponent = selectedTemplate.component;
 
@@ -65,20 +72,31 @@ export default function Home() {
           <p className="mt-1 text-sm text-gray-600">
             Changes appear in the preview as you type.
           </p>
-          <button
-            className="mt-4 rounded border border-gray-400 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100"
-            type="button"
-            onClick={resetToSample}
-          >
-            Reset to sample
-          </button>
-          <button
-            className="mt-2 rounded border border-gray-400 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100"
-            type="button"
-            onClick={handleLogout}
-          >
-            Log out
-          </button>
+          <p className="mt-2 text-sm text-gray-600" aria-live="polite">
+            {saveStatus === "loading"
+              ? "Loading your CV..."
+              : saveStatus === "saving"
+                ? "Saving..."
+                : saveStatus === "saved"
+                  ? "Saved"
+                  : "Could not save changes."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              className="rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-200"
+              type="button"
+              onClick={resetToSample}
+            >
+              Reset to sample
+            </button>
+            <button
+              className="rounded-md border border-red-600 bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700"
+              type="button"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </div>
 
           <div className="mt-6 space-y-4">
             <label className="block text-sm font-medium text-gray-800">
