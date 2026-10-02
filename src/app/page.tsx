@@ -7,8 +7,10 @@ import EducationEditor from "@/components/editor/EducationEditor";
 import JobTailorPanel from "@/components/editor/JobTailorPanel";
 import ProjectsEditor from "@/components/editor/ProjectsEditor";
 import SkillsEditor from "@/components/editor/SkillsEditor";
-import SimpleTemplate from "@/components/templates/SimpleTemplate";
+import { templates } from "@/components/templates";
 import { usePersistentCv } from "@/hooks/usePersistentCv";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 type EditableBasicsField =
   | "name"
@@ -18,7 +20,16 @@ type EditableBasicsField =
   | "location";
 
 export default function Home() {
-  const { cv, setCv, resetToSample } = usePersistentCv();
+  const router = useRouter();
+  const { cv, setCv, templateId, setTemplateId, resetToSample } = usePersistentCv();
+  const selectedTemplate = templates.find((template) => template.id === templateId) ?? templates[0];
+  const TemplateComponent = selectedTemplate.component;
+
+  const handleLogout = async () => {
+    await createClient().auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
 
   const updateBasicsField = (field: EditableBasicsField, value: string) => {
     setCv((currentCv) => ({
@@ -60,6 +71,13 @@ export default function Home() {
             onClick={resetToSample}
           >
             Reset to sample
+          </button>
+          <button
+            className="mt-2 rounded border border-gray-400 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100"
+            type="button"
+            onClick={handleLogout}
+          >
+            Log out
           </button>
 
           <div className="mt-6 space-y-4">
@@ -175,7 +193,23 @@ export default function Home() {
 
         <section className="min-w-0">
           <div className="print-preview">
-            <div className="print-button mb-4 flex justify-end">
+            <div className="print-button mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2" role="group" aria-label="Choose a template">
+                {templates.map((template) => (
+                  <button
+                    key={template.id}
+                    className={`rounded border px-3 py-2 text-sm font-medium ${
+                      selectedTemplate.id === template.id
+                        ? "border-gray-900 bg-gray-900 text-white"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                    type="button"
+                    onClick={() => setTemplateId(template.id)}
+                  >
+                    {template.name}
+                  </button>
+                ))}
+              </div>
               <button
                 className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
                 type="button"
@@ -184,7 +218,7 @@ export default function Home() {
                 Download PDF
               </button>
             </div>
-            <SimpleTemplate cv={cv} />
+            <TemplateComponent cv={cv} />
           </div>
         </section>
       </div>

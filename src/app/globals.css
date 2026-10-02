@@ -78,6 +78,19 @@ body {
     box-shadow: none !important;
   }
 
+  .modern-template {
+    grid-template-columns: 1fr !important;
+  }
+
+  .modern-sidebar {
+    background: #f3f4f6 !important;
+  }
+
+  .modern-sidebar,
+  .modern-sidebar * {
+    color: #111827 !important;
+  }
+
   .print-preview section > div > article,
   .print-preview li {
     break-inside: avoid;
